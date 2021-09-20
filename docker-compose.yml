@@ -1,0 +1,48 @@
+#https://github.com/khezen/compose-postgres/blob/master/docker-compose.yml
+version: "3.9"
+
+services:
+    postgres:
+        image: postgres
+        container_name: postgresCtn 
+        restart: unless-stopped
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: mdsB3Dev
+            POSTGRES_USER: ${POSTGRES_USER:-mdsB3Dev}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mds}
+            PGDATA: /data/postgres
+        volumes:
+            - postgres_data:/data/postgres
+        networks:
+            - postgresNetwork
+    pgAdmin:
+        image: dpage/pgadmin4
+        container_name: pgadminCtn
+        restart: unless-stopped
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@pgadmin.com}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-mds}
+            PGADMIN_DEFAULT_PORT: ${PGADMIN_DEFAULT_PORT:-80}
+        depends_on:
+            - postgres
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+        ports:
+            - "5433:80"
+        networks:
+            - postgresNetwork
+            
+networks:
+    postgresNetwork:
+        driver: bridge
+volumes:
+    postgres_data:
+    pgadmin_data: 
+    
+#to run : docker-compose --project-name mdsBDD up -d --remove-orphans
+#to run : docker-compose start/stop 
+#docker network rm ...
+# redémarrage du service : Net stop com.docker.service / Net start com.docker.service
+#& 'C:\Program Files\Docker\Docker\DockerCli.exe' -SwitchDaemon 
